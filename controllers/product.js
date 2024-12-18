@@ -30,12 +30,28 @@ exports.createProducts = async (req, res) => {
 
 exports.getAllProducts = async (req, res) => {
     try {
-      const products = await Product.find();
-      res.status(200).json({ products});
+      // Get the sorting option from the query params (default to 'asc' for low to high)
+      const { sortBy } = req.query; // 'asc' for low to high, 'desc' for high to low
+  
+      // Build the sort object based on the provided sortBy value
+      let sortOrder = {};
+      if (sortBy === 'lth') { // Low to High
+        sortOrder = { price: 1 }; // 1 for ascending order
+      } else if (sortBy === 'htl') { // High to Low
+        sortOrder = { price: -1 }; // -1 for descending order
+      } else {
+        sortOrder = { price: 1 }; // Default to low to high
+      }
+  
+      // Fetch the products and apply sorting
+      const products = await Product.find().sort(sortOrder);
+      
+      res.status(200).json({ products });
     } catch (error) {
       res.status(400).json({ message: error.message });
     }
   };
+  
 
   exports.getProductDetails = async( req, res) => {
     try {
